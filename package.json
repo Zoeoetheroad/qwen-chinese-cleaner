@@ -1,8 +1,8 @@
 {
-  "name": "qwen-chinese-cleaner",
-  "version": "0.2.2",
+  "name": "material-cleaner",
+  "version": "0.2.3",
   "private": true,
-  "description": "A local web tool for cleaning Chinese materials with Qwen API.",
+  "description": "A local desktop tool for cleaning materials into Markdown with an OpenAI-compatible API.",
   "main": "electron/main.js",
   "repository": {
     "type": "git",
@@ -33,8 +33,8 @@
     "electron-builder": "^24.13.3"
   },
   "build": {
-    "appId": "com.local.qwen-cleaner",
-    "productName": "千问中文资料清洗工具",
+    "appId": "com.local.material-cleaner",
+    "productName": "资料清洗工具",
     "asar": true,
     "asarUnpack": [
       "node_modules/@napi-rs/canvas-*/**/*.node"
@@ -59,7 +59,7 @@
       "identity": null
     },
     "dmg": {
-      "title": "千问中文资料清洗工具"
+      "title": "资料清洗工具"
     }
   }
 }

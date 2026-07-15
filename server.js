@@ -60,14 +60,14 @@ async function writeConfig(config) {
 
 async function getSettings() {
   const config = await readConfig();
-  const envApiKey = process.env.DASHSCOPE_API_KEY || process.env.QWEN_API_KEY || "";
+  const envApiKey = process.env.API_KEY || process.env.OPENAI_API_KEY || process.env.DASHSCOPE_API_KEY || process.env.QWEN_API_KEY || "";
   const apiKey = isPlaceholder(envApiKey) ? config.apiKey : envApiKey || config.apiKey;
 
   return {
     apiKey,
-    baseURL: process.env.QWEN_BASE_URL || config.baseURL || "https://dashscope.aliyuncs.com/compatible-mode/v1",
-    model: process.env.QWEN_MODEL || config.model || "qwen-plus",
-    ocrModel: process.env.QWEN_OCR_MODEL || config.ocrModel || "qwen-vl-ocr-latest",
+    baseURL: process.env.API_BASE_URL || process.env.OPENAI_BASE_URL || process.env.QWEN_BASE_URL || config.baseURL || "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    model: process.env.TEXT_MODEL || process.env.QWEN_MODEL || config.model || "qwen-plus",
+    ocrModel: process.env.OCR_MODEL || process.env.QWEN_OCR_MODEL || config.ocrModel || "qwen-vl-ocr-latest",
   };
 }
 
@@ -570,7 +570,7 @@ async function cleanDirect(instruction, content, mode) {
     {
       role: "system",
       content:
-        "你是中文资料清洗助手。请严格根据用户任务说明清洗资料。输出必须是 Markdown，不能输出解释、寒暄、代码块包裹或与清洗结果无关的内容。保持原意，保留重要事实、名称、数字和结构。",
+        "你是资料清洗助手。请严格根据用户任务说明清洗资料。输出必须是 Markdown，不能输出解释、寒暄、代码块包裹或与清洗结果无关的内容。保持原意，保留重要事实、名称、数字和结构。",
     },
     {
       role: "user",
@@ -590,7 +590,7 @@ async function cleanChunk(instruction, chunk, index, total, mode) {
     {
       role: "system",
       content:
-        "你是中文资料清洗助手。你正在处理一份长资料中的单个分段。请只处理当前分段，不要假设你看过其他分段。输出必须是 Markdown，不能输出解释、寒暄或代码块包裹。",
+        "你是资料清洗助手。你正在处理一份长资料中的单个分段。请只处理当前分段，不要假设你看过其他分段。输出必须是 Markdown，不能输出解释、寒暄或代码块包裹。",
     },
     {
       role: "user",

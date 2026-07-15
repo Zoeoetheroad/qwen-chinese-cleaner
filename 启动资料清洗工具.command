@@ -21,7 +21,7 @@ fi
 if [ ! -f ".env" ]; then
   echo "未发现 .env，正在从 .env.example 创建..."
   cp ".env.example" ".env"
-  echo "请先打开 .env，填写 DASHSCOPE_API_KEY，然后重新双击本文件。"
+  echo "请先打开 .env，填写 API_KEY，然后重新双击本文件。"
   open -a TextEdit ".env" || true
   read -k 1 "?按任意键退出..."
   exit 1

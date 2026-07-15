@@ -1,12 +1,12 @@
-# 通义千问中文资料清洗工具
+# 资料清洗工具
 
-这是一个本地网页工具，用通义千问 API 把多种资料清洗成 Markdown。
+这是一个本地桌面工具，用 OpenAI 兼容 API 把多种资料清洗成 Markdown。
 
 ## 使用方式
 
 ### 桌面版
 
-1. 打开 `dist/千问中文资料清洗工具-0.2.2-arm64.dmg`。
+1. 打开 `dist/资料清洗工具-0.2.3-arm64.dmg`。
 2. 把 App 拖到“应用程序”。
 3. 第一次打开时填写 API Key、OpenAI 兼容地址、文本模型和 OCR 模型。
 4. 之后可通过右上角“设置”随时更换模型或 API Key；不填写 API Key 保存时会继续使用本机已保存的 Key。
@@ -16,8 +16,8 @@
 
 ### 本地开发版
 
-1. 复制 `.env.example` 为 `.env`，填写 `DASHSCOPE_API_KEY`。
-2. 双击 `启动中文资料清洗工具.command`。
+1. 复制 `.env.example` 为 `.env`，填写 `API_KEY`。
+2. 双击 `启动资料清洗工具.command`。
 3. 浏览器打开后，上传文件。
 4. 输入本次任务说明。
 5. 点击“生成 Markdown”，复制清洗结果。
@@ -34,9 +34,9 @@
 ## 当前推荐配置
 
 ```env
-QWEN_BASE_URL=https://llm-ifh0q1ltemb88w62.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
-QWEN_MODEL=qwen-plus
-QWEN_OCR_MODEL=qwen-vl-ocr-latest
+API_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+TEXT_MODEL=qwen-plus
+OCR_MODEL=qwen-vl-ocr-latest
 DIRECT_CLEAN_LIMIT=12000
 CHUNK_SIZE=8000
 ```
@@ -63,10 +63,16 @@ CHUNK_SIZE=8000
 - 清洗结果新增“预览 / 源码”双视图。
 - 一键复制会根据当前视图复制预览内容或 Markdown 源码。
 
+### v0.2.3
+
+- 应用展示名改为“资料清洗工具”。
+- 设置和文档改为 OpenAI 兼容 API 表述，不再限定某个模型平台。
+- 保持一套 API 配置，文本整理和 OCR 共用同一个 API Key。
+
 ## 发布新版
 
 1. 修改 `package.json` 里的 `version`。
 2. 运行 `npm install` 确保依赖完整。
 3. 运行 `npm run release:mac` 生成 DMG。
-4. 在 GitHub Releases 创建 `v版本号`，上传 `dist/千问中文资料清洗工具-版本号-arm64.dmg`。
+4. 在 GitHub Releases 创建 `v版本号`，上传 `dist/资料清洗工具-版本号-arm64.dmg`。
 5. 用户点击应用内“检查更新”即可看到新版。
