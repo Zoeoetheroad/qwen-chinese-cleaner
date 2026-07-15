@@ -1,6 +1,6 @@
 {
   "name": "material-cleaner",
-  "version": "0.2.3",
+  "version": "1.0.0",
   "private": true,
   "description": "A local desktop tool for cleaning materials into Markdown with an OpenAI-compatible API.",
   "main": "electron/main.js",
