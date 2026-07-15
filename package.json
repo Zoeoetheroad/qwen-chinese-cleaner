@@ -1,0 +1,65 @@
+{
+  "name": "qwen-chinese-cleaner",
+  "version": "0.2.1",
+  "private": true,
+  "description": "A local web tool for cleaning Chinese materials with Qwen API.",
+  "main": "electron/main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zoeoetheroad/qwen-chinese-cleaner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Zoeoetheroad/qwen-chinese-cleaner/issues"
+  },
+  "homepage": "https://github.com/Zoeoetheroad/qwen-chinese-cleaner#readme",
+  "scripts": {
+    "start": "node server.js",
+    "electron": "electron .",
+    "dist:mac": "electron-builder --mac dmg",
+    "release:mac": "npm run dist:mac"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "canvas": "npm:@napi-rs/canvas@^0.1.88",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "multer": "^2.2.0",
+    "openai": "^4.77.0",
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^3.11.174"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.local.qwen-cleaner",
+    "productName": "千问中文资料清洗工具",
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/@napi-rs/canvas-*/**/*.node"
+    ],
+    "files": [
+      "server.js",
+      "public/**/*",
+      "electron/**/*",
+      "package.json",
+      "!**/.env",
+      "!**/.npm-cache/**",
+      "!uploads/**",
+      "!output/**",
+      "!logs/**",
+      "!input/**"
+    ],
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.productivity",
+      "identity": null
+    },
+    "dmg": {
+      "title": "千问中文资料清洗工具"
+    }
+  }
+}

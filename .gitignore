@@ -1,0 +1,11 @@
+node_modules/
+.npm-cache/
+.env
+.DS_Store
+dist/
+uploads/
+output/
+logs/
+config/
+input/
+/main.js

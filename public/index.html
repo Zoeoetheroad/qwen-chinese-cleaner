@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self';"
+    />
+    <title>通义千问中文资料清洗工具</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">本地服务</p>
+          <h1>通义千问中文资料清洗工具</h1>
+          <p class="intro">上传资料，填写任务说明，点击生成，即可得到清洗后的 Markdown 文档。</p>
+        </div>
+        <div class="connection-widget" aria-label="后端连接状态">
+          <div id="connectionStatus" class="connection-status checking">
+            <span class="connection-dot" aria-hidden="true"></span>
+            <span id="connectionText">检查中</span>
+          </div>
+          <button id="openSettingsBtn" class="connection-refresh" type="button">设置</button>
+          <button id="checkUpdateBtn" class="connection-refresh" type="button">检查更新</button>
+          <button id="refreshConnectionBtn" class="connection-refresh" type="button">刷新</button>
+        </div>
+      </header>
+
+      <section class="toolbar" aria-label="当前状态">
+        <div>
+          <span class="label">已选文件</span>
+          <strong id="fileCount">0</strong>
+        </div>
+        <div>
+          <span class="label">总大小</span>
+          <strong id="totalSize">0 B</strong>
+        </div>
+        <div>
+          <span class="label">输出格式</span>
+          <strong>Markdown</strong>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <div class="panel upload-panel">
+          <div class="panel-heading">
+            <h2>上传文件</h2>
+            <button id="clearFilesBtn" class="secondary-button compact" type="button">清空全部</button>
+          </div>
+
+          <label id="dropZone" class="drop-zone" for="fileInput">
+            <input
+              id="fileInput"
+              type="file"
+              multiple
+              accept=".txt,.md,.pdf,.pptx,.png,.jpg,.jpeg,.webp"
+            />
+            <span class="drop-title">点击选择或拖拽文件到这里</span>
+            <span class="drop-subtitle">支持 PDF、PPTX、PNG、JPG、JPEG、WEBP、TXT、MD</span>
+            <span class="drop-limit">单个文件最大 50MB，单次最多 12 个文件</span>
+          </label>
+
+          <div id="fileList" class="file-list" aria-live="polite"></div>
+          <p id="fileLimitWarning" class="file-limit-warning"></p>
+        </div>
+
+        <div class="panel instruction-panel">
+          <div class="panel-heading">
+            <h2>处理要求</h2>
+            <span class="status-text">每次都可以改</span>
+          </div>
+          <div class="quick-actions" aria-label="快捷处理要求">
+            <button class="quick-action" type="button" data-mode="standard" data-prompt="请将资料完整清洗为结构清晰的 Markdown，保留原意，去除明显重复、乱码和不必要空行，修正明显错别字。">完整清洗</button>
+            <button class="quick-action" type="button" data-mode="standard" data-prompt="请不要全量复述资料，只概括这批资料的核心内容，输出一份简洁的 Markdown 摘要。">简要概括</button>
+            <button class="quick-action" type="button" data-mode="standard" data-prompt="请从资料中提炼关键要点，按主题分组输出 Markdown 列表，保留重要名称、数字和结论。">提炼要点</button>
+            <button class="quick-action" type="button" data-mode="standard" data-prompt="请把资料整理成可用于写作的素材库，按主题归类，保留可引用的事实、观点和案例。">文章素材</button>
+            <button class="quick-action" type="button" data-mode="fancy-ppt" data-prompt="请只提取 PPT 中真正有信息价值的内容并整理为 Markdown，忽略版式、位置、颜色、图标、背景、箭头方向、左右上下区域等视觉描述。不要描述页面布局，只保留标题、观点、数据、结论、流程、产品信息和可用于理解内容的文字。">花哨 PPT</button>
+          </div>
+          <textarea id="instructionText" placeholder="例如：请只概括核心内容，不需要逐段清洗；或者只提取和某个主题有关的信息。"></textarea>
+          <button id="generateBtn" class="primary-button" type="button">生成 Markdown</button>
+        </div>
+
+        <div class="panel result-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>清洗结果</h2>
+              <span id="processingInfo" class="processing-info">等待生成</span>
+            </div>
+            <div class="result-actions">
+              <button id="downloadBtn" class="secondary-button compact" type="button">下载为 Markdown 文档</button>
+              <button id="copyBtn" class="secondary-button compact" type="button">一键复制</button>
+            </div>
+          </div>
+          <pre id="resultText" class="result-text">清洗后的 Markdown 会显示在这里。</pre>
+        </div>
+
+        <div class="panel history-panel">
+          <div class="panel-heading">
+            <h2>最近处理</h2>
+            <span class="status-text">保留 10 次</span>
+          </div>
+          <div id="historyList" class="history-list" aria-live="polite"></div>
+        </div>
+      </section>
+    </main>
+
+    <div id="configModal" class="config-modal" hidden>
+      <div class="config-dialog" role="dialog" aria-modal="true" aria-labelledby="configTitle">
+        <p class="eyebrow">API 设置</p>
+        <h2 id="configTitle">通义千问 API 与模型</h2>
+        <p class="config-intro">同一个 API Key 同时用于资料整理和图片／扫描 PDF OCR。留空 API Key 后保存，会继续使用已保存的 Key。</p>
+
+        <label class="config-field">
+          <span>API Key</span>
+          <input id="configApiKey" type="password" autocomplete="off" placeholder="sk-..." />
+        </label>
+
+        <label class="config-field">
+          <span>OpenAI 兼容地址</span>
+          <input id="configBaseUrl" type="url" />
+        </label>
+
+        <div class="config-grid">
+          <label class="config-field">
+            <span>文本模型</span>
+            <input id="configModel" type="text" />
+          </label>
+          <label class="config-field">
+            <span>OCR 模型</span>
+            <input id="configOcrModel" type="text" />
+          </label>
+        </div>
+
+        <p id="configMessage" class="config-message"></p>
+
+        <div class="config-actions">
+          <button id="testConfigBtn" class="secondary-button" type="button">测试连接</button>
+          <button id="saveConfigBtn" class="primary-button config-save" type="button">保存设置</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>
