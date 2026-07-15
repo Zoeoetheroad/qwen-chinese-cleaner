@@ -90,11 +90,16 @@
               <span id="processingInfo" class="processing-info">等待生成</span>
             </div>
             <div class="result-actions">
+              <div class="result-view-switch" aria-label="结果视图">
+                <button class="result-view-button active" type="button" data-result-view="preview">预览</button>
+                <button class="result-view-button" type="button" data-result-view="source">源码</button>
+              </div>
               <button id="downloadBtn" class="secondary-button compact" type="button">下载为 Markdown 文档</button>
               <button id="copyBtn" class="secondary-button compact" type="button">一键复制</button>
             </div>
           </div>
-          <pre id="resultText" class="result-text">清洗后的 Markdown 会显示在这里。</pre>
+          <div id="resultPreview" class="result-preview">清洗后的 Markdown 会显示在这里。</div>
+          <pre id="resultText" class="result-text" hidden>清洗后的 Markdown 会显示在这里。</pre>
         </div>
 
         <div class="panel history-panel">

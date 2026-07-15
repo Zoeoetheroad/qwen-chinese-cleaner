@@ -451,6 +451,31 @@ textarea:focus {
   gap: 8px;
 }
 
+.result-view-switch {
+  display: inline-flex;
+  padding: 2px;
+  background: #eef2f6;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.result-view-button {
+  min-height: 30px;
+  padding: 0 12px;
+  color: var(--muted);
+  background: transparent;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.result-view-button.active {
+  color: var(--primary);
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(31, 45, 61, 0.12);
+}
+
+.result-preview,
 .result-text {
   min-height: 360px;
   max-height: 720px;
@@ -461,9 +486,86 @@ textarea:focus {
   background: #fbfcfe;
   border: 1px solid var(--border);
   border-radius: 8px;
+  line-height: 1.8;
+}
+
+.result-preview {
+  font-size: 15px;
+}
+
+.result-preview h1,
+.result-preview h2,
+.result-preview h3,
+.result-preview h4,
+.result-preview h5,
+.result-preview h6 {
+  margin: 1.15em 0 0.55em;
+  line-height: 1.35;
+}
+
+.result-preview h1:first-child,
+.result-preview h2:first-child,
+.result-preview h3:first-child,
+.result-preview p:first-child {
+  margin-top: 0;
+}
+
+.result-preview h1 {
+  font-size: 24px;
+}
+
+.result-preview h2 {
+  font-size: 20px;
+}
+
+.result-preview h3 {
+  font-size: 17px;
+}
+
+.result-preview p {
+  margin: 0.55em 0;
+}
+
+.result-preview ul,
+.result-preview ol {
+  margin: 0.55em 0 0.9em;
+  padding-left: 1.4em;
+}
+
+.result-preview li {
+  margin: 0.25em 0;
+}
+
+.result-preview strong {
+  font-weight: 800;
+}
+
+.result-preview code {
+  padding: 2px 5px;
+  background: #eef2f6;
+  border-radius: 5px;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+}
+
+.result-preview pre {
+  padding: 12px;
+  overflow: auto;
+  background: #eef2f6;
+  border-radius: 8px;
+}
+
+.result-preview blockquote {
+  margin: 0.75em 0;
+  padding-left: 12px;
+  color: var(--muted);
+  border-left: 3px solid var(--border);
+}
+
+.result-text {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  line-height: 1.8;
   font-family:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
     monospace;

@@ -3,6 +3,7 @@ const dropZone = document.querySelector("#dropZone");
 const fileList = document.querySelector("#fileList");
 const clearFilesBtn = document.querySelector("#clearFilesBtn");
 const instructionText = document.querySelector("#instructionText");
+const resultPreview = document.querySelector("#resultPreview");
 const resultText = document.querySelector("#resultText");
 const generateBtn = document.querySelector("#generateBtn");
 const copyBtn = document.querySelector("#copyBtn");
@@ -27,10 +28,12 @@ const configOcrModel = document.querySelector("#configOcrModel");
 const configMessage = document.querySelector("#configMessage");
 const testConfigBtn = document.querySelector("#testConfigBtn");
 const saveConfigBtn = document.querySelector("#saveConfigBtn");
+const resultViewButtons = document.querySelectorAll("[data-result-view]");
 
 let selectedFiles = [];
 let currentResult = "";
 let currentDownloadName = "清洗结果.md";
+let currentResultView = "preview";
 let selectedMode = "standard";
 let toastTimer = null;
 let pendingUpdateUrl = "";
@@ -59,6 +62,101 @@ function escapeHtml(text) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function renderInlineMarkdown(text) {
+  return escapeHtml(text)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+}
+
+function closeList(html, listType) {
+  if (!listType) return listType;
+  html.push(`</${listType}>`);
+  return "";
+}
+
+function renderMarkdownPreview(markdown) {
+  const text = markdown.trim();
+  if (!text) return "清洗后的 Markdown 会显示在这里。";
+
+  const html = [];
+  const lines = text.split(/\n/);
+  let inCodeBlock = false;
+  let codeLines = [];
+  let listType = "";
+
+  for (const line of lines) {
+    if (/^```/.test(line.trim())) {
+      if (inCodeBlock) {
+        html.push(`<pre><code>${escapeHtml(codeLines.join("\n"))}</code></pre>`);
+        codeLines = [];
+        inCodeBlock = false;
+      } else {
+        listType = closeList(html, listType);
+        inCodeBlock = true;
+      }
+      continue;
+    }
+
+    if (inCodeBlock) {
+      codeLines.push(line);
+      continue;
+    }
+
+    if (!line.trim()) {
+      listType = closeList(html, listType);
+      continue;
+    }
+
+    const heading = line.match(/^(#{1,6})\s+(.+)$/);
+    if (heading) {
+      listType = closeList(html, listType);
+      const level = heading[1].length;
+      html.push(`<h${level}>${renderInlineMarkdown(heading[2])}</h${level}>`);
+      continue;
+    }
+
+    const unordered = line.match(/^\s*[-*]\s+(.+)$/);
+    if (unordered) {
+      if (listType !== "ul") {
+        listType = closeList(html, listType);
+        html.push("<ul>");
+        listType = "ul";
+      }
+      html.push(`<li>${renderInlineMarkdown(unordered[1])}</li>`);
+      continue;
+    }
+
+    const ordered = line.match(/^\s*\d+\.\s+(.+)$/);
+    if (ordered) {
+      if (listType !== "ol") {
+        listType = closeList(html, listType);
+        html.push("<ol>");
+        listType = "ol";
+      }
+      html.push(`<li>${renderInlineMarkdown(ordered[1])}</li>`);
+      continue;
+    }
+
+    const quote = line.match(/^>\s+(.+)$/);
+    if (quote) {
+      listType = closeList(html, listType);
+      html.push(`<blockquote>${renderInlineMarkdown(quote[1])}</blockquote>`);
+      continue;
+    }
+
+    listType = closeList(html, listType);
+    html.push(`<p>${renderInlineMarkdown(line)}</p>`);
+  }
+
+  if (inCodeBlock) {
+    html.push(`<pre><code>${escapeHtml(codeLines.join("\n"))}</code></pre>`);
+  }
+
+  closeList(html, listType);
+  return html.join("");
 }
 
 function getFileKind(fileName) {
@@ -280,6 +378,7 @@ function renderFiles() {
 function resetGeneratedContent() {
   currentResult = "";
   currentDownloadName = "清洗结果.md";
+  resultPreview.innerHTML = "清洗后的 Markdown 会显示在这里。";
   resultText.textContent = "清洗后的 Markdown 会显示在这里。";
   processingInfo.textContent = "等待生成";
 }
@@ -390,7 +489,18 @@ function renderFailedFiles(failedFiles = []) {
 
 function setResult(markdown) {
   currentResult = markdown || "";
+  resultPreview.innerHTML = renderMarkdownPreview(currentResult);
   resultText.textContent = currentResult || "清洗后的 Markdown 会显示在这里。";
+}
+
+function setResultView(view) {
+  currentResultView = view === "source" ? "source" : "preview";
+  resultPreview.hidden = currentResultView !== "preview";
+  resultText.hidden = currentResultView !== "source";
+
+  resultViewButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.resultView === currentResultView);
+  });
 }
 
 function formatProcessingInfo(processing) {
@@ -454,8 +564,27 @@ async function copyResult() {
     return;
   }
 
-  await navigator.clipboard.writeText(currentResult);
-  showToast("已复制到剪贴板", "success");
+  if (currentResultView === "source") {
+    await navigator.clipboard.writeText(currentResult);
+    showToast("已复制 Markdown 源码", "success");
+    return;
+  }
+
+  const html = resultPreview.innerHTML;
+  const text = resultPreview.innerText;
+
+  if (navigator.clipboard.write && window.ClipboardItem) {
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        "text/html": new Blob([html], { type: "text/html" }),
+        "text/plain": new Blob([text], { type: "text/plain" }),
+      }),
+    ]);
+  } else {
+    await navigator.clipboard.writeText(text);
+  }
+
+  showToast("已复制预览内容", "success");
 }
 
 function downloadMarkdown() {
@@ -500,6 +629,12 @@ quickActions.forEach((button) => {
   });
 });
 
+resultViewButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    setResultView(button.dataset.resultView);
+  });
+});
+
 dropZone.addEventListener("dragover", (event) => {
   event.preventDefault();
   dropZone.classList.add("dragging");
@@ -525,6 +660,7 @@ testConfigBtn.addEventListener("click", testConfig);
 saveConfigBtn.addEventListener("click", saveConfig);
 
 instructionText.value = "请将资料清洗为结构清晰的 Markdown，保留原意，去除明显重复、乱码和不必要空行，修正明显错别字。";
+setResultView("preview");
 renderFiles();
 loadConfigStatus().catch(() => showConfigModal());
 checkBackendConnection();
